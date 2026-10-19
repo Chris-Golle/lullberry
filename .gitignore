@@ -13,12 +13,8 @@
 /app/public/wp-content/themes/*
 !/app/public/wp-content/themes/twentytwentyfive-child/
 !/print-sheets/
-!/package.json
-!/package-lock.json
-!/*.js
-!/*.php
-!/*.md
-!/urls.txt
+!/push-all.sh
+/print-sheets/source/
 .DS_Store
 *.log
 node_modules/
