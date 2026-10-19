@@ -1,0 +1,218 @@
+/* ribbon3d.css — 3D ribbon board animation.
+   Markup: ribbon3d.php · Driver: ribbon3d.js (sets --ll-pair-scale / --ll-pair-height) */
+
+/* ── Block: full-bleed band ──
+   !important on width/margins beats WP's constrained-layout rules. */
+.ll-board-animation-block {
+  position: relative;
+  width: 100vw !important;
+  max-width: none !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: calc(50% - 50vw) !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+main .ll-board-animation-block,
+.single-product .ll-board-animation-block {
+  padding-top: var(--wp--custom--spacing--zen);
+  padding-bottom: var(--wp--custom--spacing--zen);
+}
+
+/* ── Scroll track: the stage stays pinned for 3 screens, but for at least
+   2200px (~110px per day), so short screens such as a phone in landscape
+   don't flip through the days too fast. svh (small viewport) keeps it steady
+   while mobile toolbars slide. ── */
+.ll-multi-animation-wrapper {
+  position: relative;
+  height: max(400vh, calc(100vh + 2200px));
+  height: max(400svh, calc(100svh + 2200px));
+}
+
+/* ── Sticky stage ── */
+.ll-multi-animation-wrapper .sticky-wrapper {
+  --ll-scroll-cue-top: clamp(10px, 1.4vh, 16px);
+  --ll-scroll-row-gap: clamp(26px, 3.8vh, 36px);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: clamp(8px, 1.25vh, 16px);
+  padding: calc(var(--ll-scroll-cue-top) + var(--ll-scroll-row-gap)) 0 clamp(8px, 1vh, 14px);
+  box-sizing: border-box;
+}
+
+/* Subtle ambient glow behind the boards */
+.ll-multi-animation-wrapper .sticky-wrapper::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 40% at 25% 50%, rgba(var(--wp--custom--rgb--ribbon), .08) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 40% at 75% 50%, rgba(var(--wp--custom--rgb--ribbon), .08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* Scroll cue */
+.ll-multi-animation-wrapper .sticky-wrapper::after {
+  content: 'scroll';
+  position: absolute;
+  top: var(--ll-scroll-cue-top);
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: .65rem;
+  letter-spacing: .2em;
+  color: var(--wp--preset--color--ll-bark-light);
+  opacity: .45;
+  animation: ll-bounce 2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* ── One row per board pair (height + scale set by JS, see layout()) ── */
+.ll-anim-row {
+  position: relative;
+  width: 100%;
+  height: var(--ll-pair-height, 438px);
+  flex-shrink: 0;
+}
+
+/* ── Scene: one board + its ribbon tail.
+   Rows layout: boards side by side, anchored to the row bottom.
+   Percentages are of the row, so the same rules work in narrow columns. ── */
+.ll-anim-row .scene {
+  --ll-scene-width: min(calc(350px * var(--ll-pair-scale, 1)), calc(50% - 40px));
+  position: absolute;
+  bottom: 0;
+  width: var(--ll-scene-width);
+  aspect-ratio: 5 / 3;
+  transform: translate(-50%, 0);
+  transform-origin: 50% 100%;
+  isolation: isolate;
+}
+
+.ll-anim-row .scene-left  { left: calc(50% - min(25%, var(--ll-scene-width))); z-index: 1; }
+.ll-anim-row .scene-right { left: calc(50% + min(25%, var(--ll-scene-width))); }
+
+/* Stacked layout (.is-stacked, set by JS): pairs become columns and each
+   pair's left board sits above its right one. Positions are in scaled px
+   of a 480px-tall pair: board centres at 175 and 394. */
+.ll-multi-animation-wrapper.is-stacked .sticky-wrapper {
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+.is-stacked .ll-anim-row { flex: 1 1 0; width: auto; min-width: 0; }
+.is-stacked .ll-anim-row .scene {
+  --ll-scene-width: calc(280px * var(--ll-pair-scale, 1));
+  left: 50%;
+  bottom: auto;
+  transform: translate(-50%, -50%);
+}
+.is-stacked .ll-anim-row .scene-left  { top: calc(175px * var(--ll-pair-scale, 1)); }
+.is-stacked .ll-anim-row .scene-right { top: calc(394px * var(--ll-pair-scale, 1)); }
+
+/* ── Board (rotated by JS) ── */
+.board {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+/* ── Faces: matte satin skin, printed serif ── */
+.face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: clamp(12px, 2vw, 24px) clamp(12px, 2vw, 20px);
+  transform: translateZ(2px);
+  backface-visibility: hidden;
+  border-radius: 2px;
+  background-image: var(--wp--custom--satin--bg-image);
+  background-size: var(--wp--custom--satin--bg-size);
+  background-blend-mode: var(--wp--custom--satin--bg-blend-mode);
+  box-shadow: var(--wp--custom--satin--shadow);
+  font-family: 'Aleo', 'Georgia', serif;
+  font-size: 1.1rem; /* fitted per board by JS */
+  font-weight: 300;
+  line-height: 1.4;
+  text-align: center;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.face strong, .face b { font-weight: 700; font-style: normal; }
+.face em, .face i     { font-style: italic; }
+
+.back { transform: rotateX(180deg) translateZ(2px); }
+
+/* Image-only face (SVG slot) */
+.face--image { padding: 0; overflow: hidden; }
+.face--image img {
+  display: block;
+  width: 55%;
+  object-fit: contain;
+}
+
+/* ── Ribbon tail (trapezoid shape driven by JS) ── */
+.trapezoid-container {
+  position: absolute;
+  bottom: 50%;
+  left: 50%;
+  z-index: 1;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.ll-trap-svg {
+  width: calc(222px * var(--ll-pair-scale, 1));
+  height: calc(333px * var(--ll-pair-scale, 1));
+  filter: brightness(1.04) contrast(0.97) saturate(0.9);
+}
+
+.ll-trap-svg stop:nth-child(1) { stop-color: var(--wp--custom--satin--gold-light, #dfd3aa); }
+.ll-trap-svg stop:nth-child(2) { stop-color: var(--wp--custom--satin--gold-mid, #f2e5bf); }
+.ll-trap-svg stop:nth-child(3) { stop-color: var(--wp--custom--satin--gold-dark, #cfc299); }
+
+.ll-trap-poly {
+  /* fill: the pair's SVG linearGradient (stops above) */
+  stroke: var(--wp--preset--color--ll-ribbon);
+  stroke-width: 1.5;
+}
+
+/* ── Effects ── */
+@keyframes ll-bounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50%      { transform: translateX(-50%) translateY(5px); }
+}
+
+/* Gift-message live preview — brief glow once the customer's message
+   has been scrolled into view (LLBoardPreview.reveal in ribbon3d.js). */
+@keyframes ll-preview-pulse {
+  0%, 100% { filter: none; }
+  40%      { filter: drop-shadow(0 0 14px rgba(var(--wp--custom--rgb--ribbon), .55)); }
+}
+.ll-preview-pulse .board { animation: ll-preview-pulse 1.4s ease-out; }
+
+/* ── Mobile: stage centred; a single board uses the stacked layout ── */
+@media (max-width: 768px) {
+  .ll-multi-animation-wrapper { --ll-prefer-stacked: 1; }
+  .ll-multi-animation-wrapper .sticky-wrapper { justify-content: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ll-multi-animation-wrapper .sticky-wrapper::after { animation: none; }
+}

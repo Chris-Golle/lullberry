@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "css-tree": "^3.2.1",
+    "puppeteer-core": "^24.40.0"
+  }
+}

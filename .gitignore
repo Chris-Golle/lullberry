@@ -1,0 +1,27 @@
+# Whitelist approach: ignore everything, then allow custom code only
+/*
+!/.gitignore
+!/README.md
+!/sync-from-live.sh
+!/app/
+/app/*
+!/app/public/
+/app/public/*
+!/app/public/wp-content/
+/app/public/wp-content/*
+!/app/public/wp-content/themes/
+/app/public/wp-content/themes/*
+!/app/public/wp-content/themes/twentytwentyfive-child/
+!/print-sheets/
+!/package.json
+!/package-lock.json
+!/*.js
+!/*.php
+!/*.md
+!/urls.txt
+.DS_Store
+*.log
+node_modules/
+.env*
+wp-config.php
+*token*
